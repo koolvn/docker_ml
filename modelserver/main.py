@@ -1,18 +1,23 @@
 """
 Model server script that polls Redis for images to classify
-
 Adapted from https://www.pyimagesearch.com/2018/02/05/deep-learning-production-keras-redis-flask-apache/
 """
+# ! pip install gdown -q
+import gdown
 import base64
 import json
 import os
 import sys
 import time
 
-from keras.applications import ResNet50
-from keras.applications import imagenet_utils
+from tensorflow.keras.models import load_model
+from tensorflow.keras.optimizers import Adam
+# from keras.applications import ResNet50
+# from keras.applications import imagenet_utils
 import numpy as np
 import redis
+
+
 
 # Connect to Redis server
 db = redis.StrictRedis(host=os.environ.get("REDIS_HOST"))
@@ -20,7 +25,7 @@ db = redis.StrictRedis(host=os.environ.get("REDIS_HOST"))
 # Load the pre-trained Keras model (here we are using a model
 # pre-trained on ImageNet and provided by Keras, but you can
 # substitute in your own networks just as easily)
-model = ResNet50(weights="imagenet")
+
 
 
 def base64_decode_image(a, dtype, shape):
@@ -39,6 +44,13 @@ def base64_decode_image(a, dtype, shape):
 
 
 def classify_process():
+    url = 'https://drive.google.com/uc?id=1-0G7gqL_0R346aXmIXCpaE0-CKUQ6W5S'
+    gdown.download(url, 'best_model.h5', quiet=False)
+    model = load_model("./best_model.h5")
+    optimizer = Adam(learning_rate=1e-4)  # LR = 0.001
+    model.compile(optimizer=optimizer,
+              loss={'gender': 'binary_crossentropy', 'race': 'sparse_categorical_crossentropy', 'age': 'mse'},
+              metrics={'gender': 'accuracy', 'race': 'accuracy', 'age': 'mse'})
     # Continually poll for new images to classify
     while True:
         # Pop off multiple images from Redis queue atomically
@@ -65,33 +77,31 @@ def classify_process():
 
             # Otherwise, stack the data
             else:
-                batch = np.vstack([batch, image])
-
+                #                 batch = np.vstack([batch, image])
+                batch = image
             # Update the list of image IDs
             imageIDs.append(q["id"])
 
         # Check to see if we need to process the batch
         if len(imageIDs) > 0:
+            gender_mapping = {0: 'Male', 1: 'Female'}
+            race_mapping = dict(list(enumerate(('White', 'Black', 'Asian', 'Indian', 'Others'))))
+            max_age = 116
             # Classify the batch
             print("* Batch size: {}".format(batch.shape))
-            preds = model.predict(batch)
-            results = imagenet_utils.decode_predictions(preds)
-
-            # Loop over the image IDs and their corresponding set of results from our model
-            for (imageID, resultSet) in zip(imageIDs, results):
-                # Initialize the list of output predictions
-                output = []
-
-                # Loop over the results and add them to the list of output predictions
-                for (imagenetID, label, prob) in resultSet:
-                    r = {"label": label, "probability": float(prob)}
-                    output.append(r)
-
-                # Store the output predictions in the database, using image ID as the key so we can fetch the results
-                db.set(imageID, json.dumps(output))
+            predicted_labels = model.predict(batch)
+            gender, race, age = int(predicted_labels[0][0] > 0.5), np.argmax(predicted_labels[1][0]), predicted_labels[2][0]
+            output = {"gender": f"{gender_mapping[gender]}",
+                      "race": f"{race_mapping[race]}",
+                      "age": f"{int(age[0] * max_age)}"
+                      }
+            # Store the output predictions in the database, using image ID as the key so we can fetch the results
+            db.set(imageIDs[0], json.dumps(output))
 
         # Sleep for a small amount
         time.sleep(float(os.environ.get("SERVER_SLEEP")))
 
+
 if __name__ == "__main__":
+    print("HI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     classify_process()
