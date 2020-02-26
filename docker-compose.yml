@@ -7,7 +7,7 @@ services:
     - deployml_network
 
   modelserver:
-    image: shanesoh/modelserver
+    image: koolvn/ml:modelserver
     build: ./modelserver
     depends_on:
     - redis
@@ -27,7 +27,7 @@ services:
         - node.role == worker
 
   webserver:
-    image: shanesoh/webserver
+    image: koolvn/ml:webserver
     build: ./webserver
     ports:
     - "80:80"
