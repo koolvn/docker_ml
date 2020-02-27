@@ -8,6 +8,7 @@ services:
 
   modelserver:
     image: koolvn/ml:modelserver
+#    command: ["--gpu"]
     build: ./modelserver
     depends_on:
     - redis
