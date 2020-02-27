@@ -7,7 +7,7 @@ services:
     - deployml_network
 
   modelserver:
-    image: koolvn/ml:modelserver
+    image: tensorflow/tensorflow:nightly-gpu-py3
 #    command: ["--gpu"]
     build: ./modelserver
     depends_on:
