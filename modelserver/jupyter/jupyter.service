@@ -1,0 +1,20 @@
+[Unit]
+Description=Jupyter Notebook
+After=multi-user.target
+After=syslog.target
+After=network.target
+Conflicts=getty@tty1.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=./
+ExecStart=/home/vovkaperm/.local/bin/jupyter-notebook --no-browser --ip=* --port=8888 --config=app/jupyter/jupyter_notebook_config.py
+StandardInput=tty-force
+
+Restart=always
+RestartSec=10
+#KillMode=mixed
+
+[Install]
+WantedBy=multi-user.target
