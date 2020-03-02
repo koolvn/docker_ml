@@ -7,9 +7,9 @@ from aiohttp import web
 print('Starting telegram bot')
 
 BOT_TOKEN = '702667859:AAE2x5kNJvDe2FpI6V69GcIqWrX-L4v57PU'
-OWNER_CHAT_ID = '35.195.204.212'
+OWNER_CHAT_ID = '208470137'
 # Telegram WebHooks
-WEBHOOK_HOST = ''
+WEBHOOK_HOST = '35.195.204.212'
 WEBHOOK_PORT = 8443  # 443, 80, 88 or 8443 (port need to be 'open')
 WEBHOOK_LISTEN = '0.0.0.0'  # In some VPS you may need to put here the IP addr
 
