@@ -46,5 +46,15 @@ services:
         constraints:
         - node.role == manager
 
+  telegram_bot:
+    image: koolvn/ml:tg_bot
+    build: ./telegram_bot
+    ports:
+      - "8443:8443"
+    networks:
+      - deployml_network
+    depends_on:
+      - redis
+
 networks:
     deployml_network:

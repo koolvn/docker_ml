@@ -4,7 +4,6 @@ import ssl
 from telebot.types import Message
 from aiohttp import web
 
-print('Starting telegram bot')
 
 BOT_TOKEN = '702667859:AAE2x5kNJvDe2FpI6V69GcIqWrX-L4v57PU'
 OWNER_CHAT_ID = '208470137'
@@ -122,4 +121,3 @@ web.run_app(
     port=WEBHOOK_PORT,
     ssl_context=context,
 )
-print('Started!')
