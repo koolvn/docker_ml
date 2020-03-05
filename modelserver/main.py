@@ -18,15 +18,13 @@ import tensorflow as tf
 import numpy as np
 import redis
 
-
-
 # Connect to Redis server
 db = redis.StrictRedis(host=os.environ.get("REDIS_HOST"))
+
 
 # Load the pre-trained Keras model (here we are using a model
 # pre-trained on ImageNet and provided by Keras, but you can
 # substitute in your own networks just as easily)
-
 
 
 def base64_decode_image(a, dtype, shape):
@@ -34,6 +32,7 @@ def base64_decode_image(a, dtype, shape):
     # serialized NumPy string as a byte object
     if sys.version_info.major == 3:
         a = bytes(a, encoding="utf-8")
+    print(a.shape, '\n\n\n\n')
 
     # Convert the string to a NumPy array using the supplied data
     # type and target shape
@@ -54,8 +53,8 @@ def classify_process():
     model = load_model("./best_model.h5")
     optimizer = Adam(learning_rate=1e-4)  # LR = 0.001
     model.compile(optimizer=optimizer,
-              loss={'gender': 'binary_crossentropy', 'race': 'sparse_categorical_crossentropy', 'age': 'mse'},
-              metrics={'gender': 'accuracy', 'race': 'accuracy', 'age': 'mse'})
+                  loss={'gender': 'binary_crossentropy', 'race': 'sparse_categorical_crossentropy', 'age': 'mse'},
+                  metrics={'gender': 'accuracy', 'race': 'accuracy', 'age': 'mse'})
     # Continually poll for new images to classify
     while True:
         # Pop off multiple images from Redis queue atomically
