@@ -34,7 +34,7 @@ def prepare_image(image, target):
 
     # Resize the input image and preprocess it
     # image = image.resize(target)
-    # image = img_to_array(image)
+    image = img_to_array(image)
     image = tf.image.resize_with_pad(image, 256, 256)
     image = np.expand_dims(image, axis=0)
     # image = imagenet_utils.preprocess_input(image)
