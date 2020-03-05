@@ -38,7 +38,8 @@ def base64_decode_image(a, dtype, shape):
     # Convert the string to a NumPy array using the supplied data
     # type and target shape
     a = np.frombuffer(base64.decodestring(a), dtype=dtype)
-    a = a.reshape(shape)
+    a = tf.image.resize_with_pad(a, 256, 256)
+    # a = a.reshape(shape)
 
     # Return the decoded image
     return a
@@ -65,13 +66,12 @@ def classify_process():
         for q in queue:
             # Deserialize the object and obtain the input image
             q = json.loads(q.decode("utf-8"))
-            # image = base64_decode_image(q["image"],
-            #                             os.environ.get("IMAGE_DTYPE"),
-            #                             (1, int(os.environ.get("IMAGE_HEIGHT")),
-            #                              int(os.environ.get("IMAGE_WIDTH")),
-            #                              int(os.environ.get("IMAGE_CHANS")))
-            #                             )
-            image = tf.image.resize_with_pad(q["image"], 256, 256)
+            image = base64_decode_image(q["image"],
+                                        os.environ.get("IMAGE_DTYPE"),
+                                        (1, int(os.environ.get("IMAGE_HEIGHT")),
+                                         int(os.environ.get("IMAGE_WIDTH")),
+                                         int(os.environ.get("IMAGE_CHANS")))
+                                        )
 
             # Check to see if the batch list is None
             if batch is None:
