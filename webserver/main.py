@@ -10,6 +10,7 @@ import json
 import os
 import time
 import uuid
+import tensorflow as tf
 
 from keras.preprocessing.image import img_to_array
 from keras.applications import imagenet_utils
@@ -32,7 +33,7 @@ def prepare_image(image, target):
         image = image.convert("RGB")
 
     # Resize the input image and preprocess it
-    # image = image.resize(target)
+    image = image.resize(target)
     image = img_to_array(image)
     image = np.expand_dims(image, axis=0)
     image = imagenet_utils.preprocess_input(image, 256, 256)
@@ -43,11 +44,11 @@ def prepare_image(image, target):
 
 @app.get("/")
 def index():
-    return "Hello World!"
+    return f"I'm using Tensorflow version:{tf.__version__}"
 
 
 @app.post("/predict")
-def predict(request: Request, img_file: bytes=File(...)):
+def predict(request: Request, img_file: bytes = File(...)):
     data = {"success": False}
 
     if request.method == "POST":
