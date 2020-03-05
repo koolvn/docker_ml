@@ -12,7 +12,7 @@ import time
 
 from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers import Adam
-from tensorflow.image import resize_with_pad
+import tensorflow as tf
 # from keras.applications import ResNet50
 # from keras.applications import imagenet_utils
 import numpy as np
@@ -71,7 +71,7 @@ def classify_process():
             #                              int(os.environ.get("IMAGE_WIDTH")),
             #                              int(os.environ.get("IMAGE_CHANS")))
             #                             )
-            image = resize_with_pad(q["image"], 256, 256)
+            image = tf.image.resize_with_pad(q["image"], 256, 256)
 
             # Check to see if the batch list is None
             if batch is None:
