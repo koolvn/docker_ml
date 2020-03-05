@@ -10,6 +10,7 @@ import json
 import os
 import time
 import uuid
+import tensorflow as tf
 
 from keras.preprocessing.image import img_to_array
 from keras.applications import imagenet_utils
@@ -32,10 +33,11 @@ def prepare_image(image, target):
         image = image.convert("RGB")
 
     # Resize the input image and preprocess it
-    image = image.resize(target)
-    image = img_to_array(image)
+    # image = image.resize(target)
+    # image = img_to_array(image)
     image = np.expand_dims(image, axis=0)
-    image = imagenet_utils.preprocess_input(image)
+    image = tf.image.resize_with_pad(image, 256, 256)
+    # image = imagenet_utils.preprocess_input(image)
 
     # Return the processed image
     return image

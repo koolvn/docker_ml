@@ -32,16 +32,10 @@ def base64_decode_image(a, dtype, shape):
     # serialized NumPy string as a byte object
     if sys.version_info.major == 3:
         a = bytes(a, encoding="utf-8")
-    print(a.shape, '\n\n\n\n')
-
     # Convert the string to a NumPy array using the supplied data
     # type and target shape
     a = np.frombuffer(base64.decodebytes(a), dtype=dtype)
-    print(a.shape, '\n\n\n\n')
-    # a = a.astype(np.float32) / 255.
-    a = tf.image.resize_with_pad(a, 256, 256)
-    # a = a[None, ...]
-    # a = a.reshape(shape)
+    a = a.reshape(shape)
 
     # Return the decoded image
     return a
