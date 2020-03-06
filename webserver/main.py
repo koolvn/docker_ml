@@ -47,12 +47,14 @@ def index():
     return f"I'm using Tensorflow version: {tf.__version__}"
 
 
+@app.get("/predict")
+def predict_index():
+    return f'Please send me your picture via POST request'
+
+
 @app.post("/predict")
 def predict(request: Request, img_file: bytes = File(...)):
     data = {"success": False}
-
-    if request.method == "GET":
-        return f'Please send me your picture via POST request'
 
     if request.method == "POST":
         image = Image.open(io.BytesIO(img_file))
