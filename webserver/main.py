@@ -36,7 +36,7 @@ def prepare_image(image, target):
     image = image.resize(target)
     image = img_to_array(image)
     image = np.expand_dims(image, axis=0)
-    image = imagenet_utils.preprocess_input(image, 256, 256)
+    image = imagenet_utils.preprocess_input(image)
 
     # Return the processed image
     return image
@@ -44,12 +44,15 @@ def prepare_image(image, target):
 
 @app.get("/")
 def index():
-    return f"I'm using Tensorflow version:{tf.__version__}"
+    return f"I'm using Tensorflow version: {tf.__version__}"
 
 
 @app.post("/predict")
 def predict(request: Request, img_file: bytes = File(...)):
     data = {"success": False}
+
+    if request.method == "GET":
+        return f'Please send me your picture via POST request'
 
     if request.method == "POST":
         image = Image.open(io.BytesIO(img_file))
