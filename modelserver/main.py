@@ -63,7 +63,7 @@ def classify_process():
             # Deserialize the object and obtain the input image
             q = json.loads(q.decode("utf-8"))
             # Load the cascade
-            face_cascade = cv2.CascadeClassifier('modelserver/haarcascade_frontalface_default.xml')
+            face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
             # Read the input image
             img = cv2.imread(q["image"])
             # Convert into grayscale
