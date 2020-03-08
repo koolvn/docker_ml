@@ -32,29 +32,23 @@ def base64_decode_image(a, dtype, shape):
     # serialized NumPy string as a byte object
     if sys.version_info.major == 3:
         a = bytes(a, encoding="utf-8")
-    # Convert the string to a NumPy array using the supplied data
-    # type and target shape
-    # a = np.frombuffer(base64.decodebytes(a), dtype=dtype)
-    a = np.frombuffer(a, dtype=dtype)
 
-    # a = a.reshape(shape)
-    # Load the cascade
-    face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-    # Read the input image
-    a = cv2.imdecode(a, cv2.IMREAD_COLOR)
+    face_cascade = cv2.CascadeClassifier('app/haarcascade_frontalface_default.xml')
+
+    a = np.frombuffer(a, dtype=dtype)
+    img = cv2.imdecode(a, cv2.IMREAD_COLOR)
     # Convert into grayscale
-    gray = cv2.cvtColor(a, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # Detect faces
     faces = face_cascade.detectMultiScale(gray, 1.1, 5)
     # Draw rectangle around the faces
     for (x, y, w, h) in faces:
-        cv2.rectangle(a, (x, y), (x+w, y+h), (255, 0, 0), 0)
+        cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 0)
         # Save the output image
-        cv2.imwrite('detected.jpg', a[y:y+h, x:x+w])
-        a = a[y:y+h, x:x+w]
+        cv2.imwrite('detected.jpg', img[y:y+h, x:x+w])
+        img = img[y:y+h, x:x+w]
 
-    # Return the decoded image
-    return a
+    return img
 
 
 def classify_process():
