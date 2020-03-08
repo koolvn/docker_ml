@@ -8,7 +8,6 @@ import json
 import os
 import sys
 import time
-import cv2
 
 from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers import Adam
@@ -32,19 +31,11 @@ def base64_decode_image(a, dtype, shape):
     # serialized NumPy string as a byte object
     if sys.version_info.major == 3:
         a = bytes(a, encoding="utf-8")
+    a = np.frombuffer(base64.decodebytes(a), dtype=dtype)
+    a = a.reshape(shape)
 
-    face_cascade = cv2.CascadeClassifier('app/haarcascade_frontalface_default.xml')
-    nparr = np.frombuffer(a)
-    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    faces = face_cascade.detectMultiScale(gray, 1.1, 5)
-    # Draw rectangle around the faces
-    for (x, y, w, h) in faces:
-        cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 0)
-        # Save the output image
-        cv2.imwrite('detected.jpg', img[y:y+h, x:x+w])
-
-    return img
+    # Return the decoded image
+    return a
 
 
 def classify_process():

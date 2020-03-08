@@ -11,6 +11,7 @@ import os
 import time
 import uuid
 import tensorflow as tf
+import cv2
 
 from keras.preprocessing.image import img_to_array
 from keras.applications import imagenet_utils
@@ -31,15 +32,26 @@ def prepare_image(image, target):
     # If the image mode is not RGB, convert it
     if image.mode != "RGB":
         image = image.convert("RGB")
-
+    face_cascade = cv2.CascadeClassifier('app/haarcascade_frontalface_default.xml')
+    nparr = np.frombuffer(image)
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    faces = face_cascade.detectMultiScale(gray, 1.1, 5)
+    # Draw rectangle around the faces
+    for (x, y, w, h) in faces:
+        cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 0)
+        # Save the output image
+        cv2.imwrite('detected.jpg', img[y:y + h, x:x + w])
+        img = img[y:y + h, x:x + w]
+    return img
     # Resize the input image and preprocess it
-    image = image.resize(target)
-    image = img_to_array(image)
-    image = np.expand_dims(image, axis=0)
-    image = imagenet_utils.preprocess_input(image)
-
-    # Return the processed image
-    return image
+    # image = image.resize(target)
+    # image = img_to_array(image)
+    # image = np.expand_dims(image, axis=0)
+    # image = imagenet_utils.preprocess_input(image)
+    #
+    # # Return the processed image
+    # return image
 
 
 @app.get("/")

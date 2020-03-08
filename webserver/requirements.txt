@@ -3,3 +3,4 @@ keras
 Pillow
 redis
 python-multipart
+opencv-python

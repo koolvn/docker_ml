@@ -3,4 +3,3 @@ keras
 Pillow
 redis
 gdown
-opencv-python
