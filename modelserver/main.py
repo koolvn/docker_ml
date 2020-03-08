@@ -34,7 +34,9 @@ def base64_decode_image(a, dtype, shape):
         a = bytes(a, encoding="utf-8")
     # Convert the string to a NumPy array using the supplied data
     # type and target shape
-    a = np.frombuffer(base64.decodebytes(a), dtype=dtype)
+    # a = np.frombuffer(base64.decodebytes(a), dtype=dtype)
+    a = np.frombuffer(a, dtype=dtype)
+
     # a = a.reshape(shape)
     # Load the cascade
     face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
