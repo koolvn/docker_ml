@@ -2,13 +2,13 @@
 Model server script that polls Redis for images to classify
 Adapted from https://www.pyimagesearch.com/2018/02/05/deep-learning-production-keras-redis-flask-apache/
 """
-# ! pip install gdown -q
 import gdown
 import base64
 import json
 import os
 import sys
 import time
+import cv2
 
 from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers import Adam
@@ -62,12 +62,26 @@ def classify_process():
         for q in queue:
             # Deserialize the object and obtain the input image
             q = json.loads(q.decode("utf-8"))
-            image = base64_decode_image(q["image"],
-                                        os.environ.get("IMAGE_DTYPE"),
-                                        (1, int(os.environ.get("IMAGE_HEIGHT")),
-                                         int(os.environ.get("IMAGE_WIDTH")),
-                                         int(os.environ.get("IMAGE_CHANS")))
-                                        )
+            # Load the cascade
+            face_cascade = cv2.CascadeClassifier('modelserver/haarcascade_frontalface_default.xml')
+            # Read the input image
+            img = cv2.imread(q["image"])
+            # Convert into grayscale
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            # Detect faces
+            faces = face_cascade.detectMultiScale(gray, 1.1, 5)
+            # Draw rectangle around the faces
+            for (x, y, w, h) in faces:
+                cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 0)
+                # Save the output image
+                cv2.imwrite('detected.jpg', img[y:y+h, x:x+w])
+                image = img[y:y+h, x:x+w]
+            # image = base64_decode_image(q["image"],
+            #                             os.environ.get("IMAGE_DTYPE"),
+            #                             (1, int(os.environ.get("IMAGE_HEIGHT")),
+            #                              int(os.environ.get("IMAGE_WIDTH")),
+            #                              int(os.environ.get("IMAGE_CHANS")))
+            #                             )
 
             # Check to see if the batch list is None
             if batch is None:
@@ -101,5 +115,4 @@ def classify_process():
 
 
 if __name__ == "__main__":
-    print("HI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     classify_process()
