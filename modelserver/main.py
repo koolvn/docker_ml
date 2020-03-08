@@ -65,7 +65,12 @@ def classify_process():
             # Load the cascade
             face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
             # Read the input image
-            img = cv2.imread(q["image"])
+            nparr = np.fromstring(q['image'], np.uint8)
+            img = cv2.imdecode(nparr, cv2.IMREAD_COLOR) # cv2.IMREAD_COLOR in OpenCV 3.1
+            print(type(q['image']))
+            print(type(img))
+            # img = cv2.imread(q["image"])
+
             # Convert into grayscale
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             # Detect faces
