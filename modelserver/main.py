@@ -33,7 +33,7 @@ def base64_decode_image(a, dtype, shape):
     if sys.version_info.major == 3:
         a = bytes(a, encoding="utf-8")
 
-    face_cascade = cv2.CascadeClassifier('/app/haarcascade_frontalface_default.xml')
+    face_cascade = cv2.CascadeClassifier('app/haarcascade_frontalface_default.xml')
     nparr = np.frombuffer(a)
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
