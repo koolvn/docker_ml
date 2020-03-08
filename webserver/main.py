@@ -32,7 +32,9 @@ def prepare_image(image, target):
     # If the image mode is not RGB, convert it
     if image.mode != "RGB":
         image = image.convert("RGB")
+
     face_cascade = cv2.CascadeClassifier('app/haarcascade_frontalface_default.xml')
+    image = img_to_array(image)
     nparr = np.frombuffer(image)
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
