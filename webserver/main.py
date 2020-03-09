@@ -22,7 +22,7 @@ import redis
 from fastapi import FastAPI, File, HTTPException
 from starlette.requests import Request
 
-print('\n!!!!!!!!!!\n', '\n', os.listdir(), '\n')
+print('\n!!!!!!!!!!\n', '\n', os.listdir('.'), '\n')
 
 app = FastAPI()
 db = redis.StrictRedis(host=os.environ.get("REDIS_HOST"))
@@ -36,7 +36,7 @@ def get_faces(image):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     faces = face_cascade.detectMultiScale(gray, 1.1, 5)
     if len(faces) == 0:
-        return False
+        return 0
     # Draw rectangle around the faces
     for (x, y, w, h) in faces:
         cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 0)
@@ -77,7 +77,7 @@ def predict(request: Request, img_file: bytes = File(...)):
 
     if request.method == "POST":
         faces = get_faces(img_file)
-        if not faces:
+        if faces == 0:
             return 'No faces detected'
 
         image = Image.open(io.BytesIO(faces))
