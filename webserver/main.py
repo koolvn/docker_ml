@@ -30,13 +30,13 @@ CLIENT_MAX_TRIES = int(os.environ.get("CLIENT_MAX_TRIES"))
 
 def prepare_image(image, target):
     # If the image mode is not RGB, convert it
-    if image.mode != "RGB":
-        image = image.convert("RGB")
+    # if image.mode != "RGB":
+    #     image = image.convert("RGB")
 
     face_cascade = cv2.CascadeClassifier('app/haarcascade_frontalface_default.xml')
-    image = img_to_array(image)
-    nparr = np.frombuffer(image)
-    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    # image = image.tobytes()
+    image_arr = np.frombuffer(image, np.uint8)
+    img = cv2.imdecode(image_arr, cv2.IMREAD_COLOR)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     faces = face_cascade.detectMultiScale(gray, 1.1, 5)
     # Draw rectangle around the faces
@@ -71,8 +71,8 @@ def predict(request: Request, img_file: bytes = File(...)):
     data = {"success": False}
 
     if request.method == "POST":
-        image = Image.open(io.BytesIO(img_file))
-        image = prepare_image(image,
+        # image = Image.open(io.BytesIO(img_file))
+        image = prepare_image(img_file,
                               (int(os.environ.get("IMAGE_WIDTH")),
                                int(os.environ.get("IMAGE_HEIGHT")))
                               )
