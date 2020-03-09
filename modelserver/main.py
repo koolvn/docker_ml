@@ -2,21 +2,21 @@
 Model server script that polls Redis for images to classify
 Adapted from https://www.pyimagesearch.com/2018/02/05/deep-learning-production-keras-redis-flask-apache/
 """
-import gdown
 import base64
 import json
 import os
 import sys
 import time
 
-from tensorflow.keras.models import load_model
-from tensorflow.keras.optimizers import Adam
-import tensorflow as tf
+import gdown
 # from keras.applications import ResNet50
 # from keras.applications import imagenet_utils
 import numpy as np
 import redis
+from tensorflow.keras.models import load_model
+from tensorflow.keras.optimizers import Adam
 
+D_TYPE = np.float32
 # Connect to Redis server
 db = redis.StrictRedis(host=os.environ.get("REDIS_HOST"))
 
@@ -61,7 +61,7 @@ def classify_process():
             q = json.loads(q.decode("utf-8"))
 
             image = base64_decode_image(q["image"],
-                                        os.environ.get("IMAGE_DTYPE"),
+                                        D_TYPE,
                                         (1, int(os.environ.get("IMAGE_HEIGHT")),
                                          int(os.environ.get("IMAGE_WIDTH")),
                                          int(os.environ.get("IMAGE_CHANS")))
@@ -81,7 +81,7 @@ def classify_process():
         # Check to see if we need to process the batch
         if len(imageIDs) > 0:
             gender_mapping = {0: 'Male', 1: 'Female'}
-            race_mapping = dict(list(enumerate(('White', 'Black', 'Asian', 'Indian', 'Others'))))
+            race_mapping = dict(list(enumerate(['White', 'Black', 'Asian', 'Indian', 'Others'])))
             max_age = 116
             # Classify the batch
             print("* Batch size: {}".format(batch.shape))

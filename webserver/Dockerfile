@@ -6,6 +6,8 @@ RUN pip install -r /app/requirements.txt --no-cache-dir
 
 COPY . /app
 
-RUN ["apt-get", "update"]
-
-RUN ["apt-get", "install", "-y", "libsm6", "libxext6", "libxrender-dev", "libgtk2.0-dev"]
+RUN apt-get update && apt-get install -y --no-install-recommends \
+ libsm6 \
+ libxext6 \
+ libxrender-dev \
+ libgtk2.0-dev
