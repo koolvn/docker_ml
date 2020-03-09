@@ -28,15 +28,9 @@ db = redis.StrictRedis(host=os.environ.get("REDIS_HOST"))
 CLIENT_MAX_TRIES = int(os.environ.get("CLIENT_MAX_TRIES"))
 
 
-def prepare_image(image, target):
-    # If the image mode is not RGB, convert it
-    # if image.mode != "RGB":
-    #     image = image.convert("RGB")
-
-    face_cascade = cv2.CascadeClassifier('app/haarcascade_frontalface_default.xml')
-    # image = image.tobytes()
-    image_arr = np.frombuffer(image, np.uint8)
-    img = cv2.imdecode(image_arr, cv2.IMREAD_COLOR)
+def get_faces(image):
+    face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+    img = cv2.imdecode(np.frombuffer(image, np.float), cv2.IMREAD_COLOR)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     faces = face_cascade.detectMultiScale(gray, 1.1, 5)
     # Draw rectangle around the faces
@@ -44,16 +38,23 @@ def prepare_image(image, target):
         cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 0)
         # Save the output image
         cv2.imwrite('detected.jpg', img[y:y + h, x:x + w])
-        img = img[y:y + h, x:x + w]
-    return img
+        img = img[y:y+h, x:x+w]
+
+    return cv2.imencode('.png', img)[1]
+
+
+def prepare_image(image, target):
+    # If the image mode is not RGB, convert it
+    if image.mode != "RGB":
+        image = image.convert("RGB")
     # Resize the input image and preprocess it
-    # image = image.resize(target)
-    # image = img_to_array(image)
-    # image = np.expand_dims(image, axis=0)
-    # image = imagenet_utils.preprocess_input(image)
-    #
-    # # Return the processed image
-    # return image
+    image = image.resize(target)
+    image = img_to_array(image)
+    image = np.expand_dims(image, axis=0)
+    image = imagenet_utils.preprocess_input(image)
+
+    # Return the processed image
+    return image
 
 
 @app.get("/")
@@ -71,8 +72,9 @@ def predict(request: Request, img_file: bytes = File(...)):
     data = {"success": False}
 
     if request.method == "POST":
-        # image = Image.open(io.BytesIO(img_file))
-        image = prepare_image(img_file,
+
+        image = Image.open(io.BytesIO(get_faces(img_file)))
+        image = prepare_image(image,
                               (int(os.environ.get("IMAGE_WIDTH")),
                                int(os.environ.get("IMAGE_HEIGHT")))
                               )
