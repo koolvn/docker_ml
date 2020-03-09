@@ -22,12 +22,12 @@ import redis
 from fastapi import FastAPI, File, HTTPException
 from starlette.requests import Request
 
+print('\n!!!!!!!!!!\n', '\n', os.listdir(), '\n')
+
 app = FastAPI()
 db = redis.StrictRedis(host=os.environ.get("REDIS_HOST"))
 
 CLIENT_MAX_TRIES = int(os.environ.get("CLIENT_MAX_TRIES"))
-
-print('\n!!!!!!!!!!\n', '\n', os.listdir(), '\n')
 
 
 def get_faces(image):
@@ -41,7 +41,7 @@ def get_faces(image):
     for (x, y, w, h) in faces:
         cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 0)
         # Save the output image
-        cv2.imwrite('detected.jpg', img[y:y + h, x:x + w])
+        # cv2.imwrite('detected.jpg', img[y:y + h, x:x + w])
         img = img[y:y + h, x:x + w]
 
     return cv2.imencode('.jpg', img)[1]
