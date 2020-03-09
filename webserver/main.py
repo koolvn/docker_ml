@@ -27,20 +27,24 @@ db = redis.StrictRedis(host=os.environ.get("REDIS_HOST"))
 
 CLIENT_MAX_TRIES = int(os.environ.get("CLIENT_MAX_TRIES"))
 
+print(os.listdir('.'))
+
 
 def get_faces(image):
     face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
     img = cv2.imdecode(np.frombuffer(image, np.float), cv2.IMREAD_COLOR)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     faces = face_cascade.detectMultiScale(gray, 1.1, 5)
+    if len(faces) == 0:
+        return False
     # Draw rectangle around the faces
     for (x, y, w, h) in faces:
         cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 0)
         # Save the output image
         cv2.imwrite('detected.jpg', img[y:y + h, x:x + w])
-        img = img[y:y+h, x:x+w]
+        img = img[y:y + h, x:x + w]
 
-    return cv2.imencode('.png', img)[1]
+    return cv2.imencode('.jpg', img)[1]
 
 
 def prepare_image(image, target):
@@ -72,8 +76,11 @@ def predict(request: Request, img_file: bytes = File(...)):
     data = {"success": False}
 
     if request.method == "POST":
+        faces = get_faces(img_file)
+        if not faces:
+            return 'No faces detected'
 
-        image = Image.open(io.BytesIO(get_faces(img_file)))
+        image = Image.open(io.BytesIO(faces))
         image = prepare_image(image,
                               (int(os.environ.get("IMAGE_WIDTH")),
                                int(os.environ.get("IMAGE_HEIGHT")))
