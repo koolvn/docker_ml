@@ -31,7 +31,7 @@ CLIENT_MAX_TRIES = int(os.environ.get("CLIENT_MAX_TRIES"))
 
 
 def get_faces(image):
-    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+    face_cascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
     img = cv2.imdecode(np.frombuffer(image, np.float), cv2.IMREAD_COLOR)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     faces = face_cascade.detectMultiScale(gray, 1.1, 5)
