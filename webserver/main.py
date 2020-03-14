@@ -37,6 +37,10 @@ def get_faces(image: bytes = File(...), cascade_file='frontal_face.xml', extensi
     faces_found = [img[y:y + h, x:x + w] for (x, y, w, h) in faces]
     if faces_found:
         return cv2.imencode(extension, faces_found[0])[1]
+    else:
+        print('!No Faces Found!')
+        return image
+
 
 
 def prepare_image(image: Image, target: tuple):
@@ -68,8 +72,8 @@ def predict(request: Request, img_file: bytes = File(...)):
     data = {"success": False}
 
     if request.method == "POST":
-
-        image = Image.open(io.BytesIO(get_faces(img_file)))
+        face = get_faces(img_file)
+        image = Image.open(io.BytesIO())
         image = prepare_image(image,
                               (int(os.environ.get("IMAGE_WIDTH")),
                                int(os.environ.get("IMAGE_HEIGHT")))
